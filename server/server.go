@@ -9,6 +9,7 @@ import (
 
 type serverConfig struct {
 	listenAddress string
+	enableCORS    bool
 }
 
 type server struct {
@@ -22,9 +23,15 @@ func NewServer(c serverConfig) *server {
 	server := new(server)
 	server.version = version
 	server.listenAddress = c.listenAddress
+	server.enableCORS = c.enableCORS
 
 	engine := gin.Default()
 	server.router = engine
+
+	if server.enableCORS {
+		logger().Info("CORS is enabled")
+		engine.Use(CORSMiddleware())
+	}
 
 	engine.GET("/", server.handleRoot)
 

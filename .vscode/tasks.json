@@ -29,7 +29,8 @@
 			"type": "shell",
 			"command": "air",
 			"options": {"cwd": "server", "env": {
-				"REACT_GO_TEMPLATE_LISTEN_ADDRESS": "localhost:8080"
+				"REACT_GO_TEMPLATE_LISTEN_ADDRESS": "localhost:8080",
+				"REACT_GO_TEMPLATE_ENABLE_CORS": "true"
 			}},
 			"isBackground": true,
 			"detail": "air",
