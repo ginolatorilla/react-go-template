@@ -7,6 +7,7 @@ This uses the following stacks:
 - **Prettier** plugin for TailwindCSS is enabled.
 - **Air** runs the server in a development reload loop (install first with `go install github.com/cosmtrek/air@latest`)
 - **Gin** is the HTTP web framework.
+- **Viper** for reading configuration from environment variables.
 
 Additional features:
 
