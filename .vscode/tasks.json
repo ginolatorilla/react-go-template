@@ -12,6 +12,18 @@
 			"runOptions": {
 				"runOn": "folderOpen"
 			}
+		},
+		{
+			"type": "npm",
+			"script": "dev-tw",
+			"path": "client",
+			"problemMatcher": [],
+			"label": "npm: dev-tw - client",
+			"detail": "tailwindcss",
+			"isBackground": true,
+			"runOptions": {
+				"runOn": "folderOpen"
+			}
 		}
 	]
 }
