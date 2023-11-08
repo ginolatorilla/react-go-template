@@ -32,6 +32,7 @@ func NewServer(c serverConfig) *server {
 }
 
 func (s *server) Serve() {
+	logger().Infof("%s version: %s", app, s.version)
 	http.ListenAndServe(s.listenAddress, s.router)
 }
 
