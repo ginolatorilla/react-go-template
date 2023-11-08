@@ -6,7 +6,7 @@ REPO_PATH = $(ORG_PATH)/$(PROJ)
 VERSION  ?= 0.0.1
 
 export GOBIN=$(PWD)/bin
-LD_FLAGS="-w -X main.version=$(VERSION)"
+LD_FLAGS="-w -X main.version=$(VERSION) -X main.app=$(PROJ)"
 
 build: bin/$(PROJ)
 
