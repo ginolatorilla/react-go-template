@@ -28,3 +28,4 @@ The following subaths in `client/src/<path>` are mapped to `@<path>` in TypeScri
 1. `client/package*.json`: change `{"name": "vite-project"}` to your project's name.
 2. `server/go.mod`: change module path to your project's repo URL.
 3. `server/Makefile`: change `PROJ` to your project's name and `ORGPATH` to your project's base repo URL.
+4. `.vscode/tasks.json`: change the environment variables (e.g. REACT_GO_TEMPLATE_LISTEN_ADDRESS) based on your app's name.
