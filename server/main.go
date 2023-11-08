@@ -1,9 +1,8 @@
 package main
 
-import "fmt"
-
 var version string
 
 func main() {
-	fmt.Printf("Hello, world! App version: %s", version)
+	server := NewServer(":8081")
+	server.Serve()
 }
