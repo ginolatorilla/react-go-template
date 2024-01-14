@@ -4,6 +4,7 @@ This uses the following stacks:
 
 - Project is bootstrapped using **Vite** with the following options: *React* and *TypeScript*.
 - **TailwindCSS** is the CSS framework.
+- **Prettier** plugin for TailwindCSS is enabled.
 
 Additional features:
 
