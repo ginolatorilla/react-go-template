@@ -7,16 +7,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type server struct {
-	version       string
-	router        http.Handler
+type serverConfig struct {
 	listenAddress string
 }
 
-func NewServer(listenAddr string) *server {
+type server struct {
+	serverConfig
+
+	version string
+	router  http.Handler
+}
+
+func NewServer(c serverConfig) *server {
 	server := new(server)
 	server.version = version
-	server.listenAddress = listenAddr
+	server.listenAddress = c.listenAddress
 
 	engine := gin.Default()
 	server.router = engine
