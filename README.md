@@ -10,6 +10,7 @@ Additional features:
 VSCode will run the following tasks in the background:
 
 - `npm run dev`
+- `npm run dev-tw`
 
 ## Customisation
 
