@@ -31,5 +31,5 @@ func (s *server) Serve() {
 }
 
 func (s *server) handleRoot(c *gin.Context) {
-	c.Writer.WriteString(fmt.Sprintf("Hello, World! App version: %s", s.version))
+	c.Writer.WriteString(fmt.Sprintf("Hello, World! %s version: %s", app, s.version))
 }
