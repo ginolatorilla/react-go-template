@@ -5,6 +5,7 @@ This uses the following stacks:
 - Project is bootstrapped using **Vite** with the following options: *React* and *TypeScript*.
 - **TailwindCSS** is the CSS framework.
 - **Prettier** plugin for TailwindCSS is enabled.
+- **Air** runs the server in a development reload loop (install first with `go install github.com/cosmtrek/air@latest`)
 
 Additional features:
 

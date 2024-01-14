@@ -24,6 +24,18 @@
 			"runOptions": {
 				"runOn": "folderOpen"
 			}
-		}
+		},
+		{
+			"type": "shell",
+			"command": "air",
+			"options": {"cwd": "server", "env": {}},
+			"isBackground": true,
+			"detail": "air",
+			"problemMatcher": [],
+			"label": "go: air",
+			"runOptions": {
+				"runOn": "folderOpen"
+			}
+		},
 	]
 }
