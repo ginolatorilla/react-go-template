@@ -30,3 +30,15 @@ The following subaths in `client/src/<path>` are mapped to `@<path>` in TypeScri
 2. `server/go.mod`: change module path to your project's repo URL.
 3. `server/Makefile`: change `PROJ` to your project's name and `ORGPATH` to your project's base repo URL.
 4. `.vscode/tasks.json`: change the environment variables (e.g. REACT_GO_TEMPLATE_LISTEN_ADDRESS) based on your app's name.
+5. `client/vite.config.ts`: replace the `envPrefix` based on your app's name.
+6. `client/src/utils/server.ts`: change environment variable prefixes (ie REACT_GO_TEMPLATE_*).
+
+## Configuration
+
+All configuration is read from environment variables.
+
+| Key                                | Scope  | Description                                                                                     |
+| ---------------------------------- | ------ | ----------------------------------------------------------------------------------------------- |
+| `REACT_GO_TEMPLATE_SERVER_URL`     | Client | The URL of the backend server.                                                                  |
+| `REACT_GO_TEMPLATE_LISTEN_ADDRESS` | Server | Binds the backend server to this address. Should be the same as `REACT_GO_TEMPLATE_SERVER_URL`. |
+| `REACT_GO_TEMPLATE_ENABLE_CORS`    | Server | Enables CORS. Useful if the client and server are running on different processes.               |
