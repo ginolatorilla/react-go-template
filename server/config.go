@@ -16,5 +16,6 @@ func ReadConfigFromEnv() serverConfig {
 		listenAddress: viper.GetString("listen_address"),
 	}
 
+	logger().Debugf("Config loaded from environment: %#v", cfg)
 	return cfg
 }
