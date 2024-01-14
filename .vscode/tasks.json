@@ -28,7 +28,9 @@
 		{
 			"type": "shell",
 			"command": "air",
-			"options": {"cwd": "server", "env": {}},
+			"options": {"cwd": "server", "env": {
+				"REACT_GO_TEMPLATE_LISTEN_ADDRESS": "localhost:8080"
+			}},
 			"isBackground": true,
 			"detail": "air",
 			"problemMatcher": [],
