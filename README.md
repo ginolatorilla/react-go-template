@@ -15,7 +15,7 @@ Additional features:
 VSCode will run the following tasks in the background:
 
 - `npm run dev`
-- `npm run dev-tw`
+- `air`
 
 The following subaths in `client/src/<path>` are mapped to `@<path>` in TypeScript
 

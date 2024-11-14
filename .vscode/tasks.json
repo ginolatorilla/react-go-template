@@ -1,44 +1,35 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"type": "npm",
-			"script": "dev",
-			"path": "client",
-			"problemMatcher": [],
-			"label": "npm: dev - client",
-			"detail": "vite",
-			"isBackground": true,
-			"runOptions": {
-				"runOn": "folderOpen"
-			}
-		},
-		{
-			"type": "npm",
-			"script": "dev-tw",
-			"path": "client",
-			"problemMatcher": [],
-			"label": "npm: dev-tw - client",
-			"detail": "tailwindcss",
-			"isBackground": true,
-			"runOptions": {
-				"runOn": "folderOpen"
-			}
-		},
-		{
-			"type": "shell",
-			"command": "air",
-			"options": {"cwd": "server", "env": {
-				"REACT_GO_TEMPLATE_LISTEN_ADDRESS": "localhost:8080",
-				"REACT_GO_TEMPLATE_ENABLE_CORS": "true"
-			}},
-			"isBackground": true,
-			"detail": "air",
-			"problemMatcher": [],
-			"label": "go: air",
-			"runOptions": {
-				"runOn": "folderOpen"
-			}
-		},
-	]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "dev",
+      "path": "client",
+      "problemMatcher": [],
+      "label": "npm: dev",
+      "detail": "vite",
+      "isBackground": true,
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "air",
+      "options": {
+        "cwd": "server",
+        "env": {
+          "REACT_GO_TEMPLATE_LISTEN_ADDRESS": "localhost:8080",
+          "REACT_GO_TEMPLATE_ENABLE_CORS": "true"
+        }
+      },
+      "isBackground": true,
+      "detail": "air",
+      "problemMatcher": [],
+      "label": "go: air",
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    }
+  ]
 }
