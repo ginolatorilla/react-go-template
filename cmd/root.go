@@ -1,0 +1,103 @@
+package cmd
+
+import (
+	"fmt"
+	"os"
+
+	u "github.com/ginolatorilla/go-template/pkg/utils"
+	"github.com/ginolatorilla/react-go-template/server"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
+)
+
+var (
+	AppName    = "react-go-template" // Name of the application
+	Version    = ""                  // Version of the application
+	CommitHash = ""                  // Commit hash of the application
+)
+
+func Execute() {
+	cmd := newCommand(AppName)
+	u.Check(cmd.Execute())
+}
+
+func newCommand(appName string) *cobra.Command {
+	var configFile string
+	var verbosity int
+
+	cobra.OnInitialize(
+		func() { setUpLogger(verbosity) },
+		func() { configure(configFile, appName) },
+	)
+
+	cmd := &cobra.Command{
+		Use:   appName,
+		Short: "Runs the application web server",
+		Run: func(cmd *cobra.Command, args []string) {
+			srv := server.NewServer(server.ReadConfigFromEnv(AppName), Version, AppName)
+			srv.Serve()
+		},
+	}
+
+	cmd.PersistentFlags().StringVar(
+		&configFile,
+		"config",
+		"",
+		fmt.Sprintf("Read configuration from this file (default is $HOME/.%s.yaml)", appName),
+	)
+	cmd.PersistentFlags().CountVarP(
+		&verbosity,
+		"verbose",
+		"v",
+		"Verbosity level. Use -v for verbose, -vv for more verbose, etc.",
+	)
+	return cmd
+}
+
+// setUpLogger sets up the logger based on the verbosity level.
+//
+// This function mimics the default logging level of Python's logger (starts at WARNING).
+func setUpLogger(verbosity int) {
+	lvl := zap.WarnLevel
+	trace := false
+
+	switch verbosity {
+	case 0:
+		lvl = zap.WarnLevel
+		trace = false
+	case 1:
+		lvl = zap.InfoLevel
+		trace = false
+	case 2:
+		lvl = zap.DebugLevel
+		trace = false
+	default:
+		lvl = zap.DebugLevel
+		trace = true
+	}
+
+	config := zap.NewDevelopmentConfig()
+	config.Level = zap.NewAtomicLevelAt(lvl)
+	config.DisableStacktrace = !trace
+	zap.ReplaceGlobals(zap.Must(config.Build()))
+}
+
+// configure reads application options from a file and environment variables.
+func configure(configFile, appName string) {
+	if configFile != "" {
+		viper.SetConfigFile(configFile)
+		return
+	}
+
+	zap.S().Debug("No config file specified, searching for default config file")
+	home := u.Must(os.UserHomeDir())
+	viper.AddConfigPath(home)
+	viper.SetConfigType("yaml")
+	viper.SetConfigName(fmt.Sprintf(".%s", appName))
+
+	viper.AutomaticEnv()
+	if err := viper.ReadInConfig(); err == nil {
+		zap.S().Info("Using config file:", viper.ConfigFileUsed())
+	}
+}
