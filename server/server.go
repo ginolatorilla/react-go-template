@@ -21,25 +21,24 @@ type server struct {
 	router  http.Handler
 }
 
-func NewServer(c Options, name string, version VersionInfo) *server {
+func NewServer(c Options) *server {
 	server := new(server)
-	server.version = version
-	server.name = name
-	server.Options = c
+	server.version.CommitHash = CommitHash
+	server.version.Version = Version
+	server.name = AppName
 
 	zap.S().Debugf("Server options: %+v", c)
+	server.Options = c
 
 	engine := gin.Default()
-	server.router = engine
-
 	if server.EnableCORS {
 		defer zap.S().Sync()
 		zap.S().Info("CORS is enabled")
 		engine.Use(CORSMiddleware())
 	}
-
 	engine.GET("/", server.handleRoot)
 
+	server.router = engine
 	return server
 }
 

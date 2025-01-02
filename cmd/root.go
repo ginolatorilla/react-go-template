@@ -11,14 +11,8 @@ import (
 	"go.uber.org/zap"
 )
 
-var (
-	AppName    = "react-go-template" // Name of the application
-	Version    = "<not-set>"         // Version of the application
-	CommitHash = "<not-set>"         // Commit hash of the application
-)
-
 func Execute() {
-	cmd := newCommand(AppName)
+	cmd := newCommand(server.AppName)
 	u.Check(cmd.Execute())
 }
 
@@ -36,14 +30,7 @@ func newCommand(appName string) *cobra.Command {
 		Use:   appName,
 		Short: "Runs the application web server",
 		Run: func(cmd *cobra.Command, args []string) {
-			srv := server.NewServer(
-				opts,
-				AppName,
-				server.VersionInfo{
-					Version:    Version,
-					CommitHash: CommitHash,
-				},
-			)
+			srv := server.NewServer(opts)
 			u.Check(srv.Serve())
 		},
 	}

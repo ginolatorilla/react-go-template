@@ -9,7 +9,7 @@ COMMIT_HASH = $(shell git rev-parse HEAD)
 PACKAGE     = $(GITHUB_DOMAIN)/$(GITHUB_OWNER)/$(APP)
 
 BUILD_FLAGS = -v -buildvcs
-LD_FLAGS    = -ldflags="-X '$(PACKAGE)/cmd.AppName=$(APP)' -X '$(PACKAGE)/cmd.Version=$(VERSION)' -X '$(PACKAGE)/cmd.CommitHash=$(COMMIT_HASH)'"
+LD_FLAGS    = -ldflags="-X '$(PACKAGE)/server.AppName=$(APP)' -X '$(PACKAGE)/server.Version=$(VERSION)' -X '$(PACKAGE)/server.CommitHash=$(COMMIT_HASH)'"
 TEST_REGEX  = ".*"
 TEST_PACKAGE = "./..."
 
