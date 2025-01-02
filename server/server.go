@@ -30,30 +30,38 @@ func NewServer(c Options) *server {
 	server.version.Version = Version
 	server.name = AppName
 
+	defer zap.S().Sync()
 	zap.S().Debugf("Server options: %+v", c)
 	server.Options = c
 
-	engine := gin.Default()
-	if server.EnableCORS {
-		defer zap.S().Sync()
-		zap.S().Info("CORS is enabled")
-		engine.Use(CORSMiddleware())
-	}
-
-	server.setUpHandlers(engine)
+	server.setUpGin()
 	return server
 }
 
 func (s *server) Serve() error {
 	defer zap.S().Sync()
-	zap.S().Infof("%s version: %s", s.name, s.version)
+	zap.S().Infof("Starting %s version %s and listening at %s", s.name, s.version, s.ListenAddress)
 	return http.ListenAndServe(s.ListenAddress, s.router)
+}
+
+func (s *server) setUpGin() {
+	engine := gin.Default()
+	s.setUpMiddleware(engine)
+	s.setUpHandlers(engine)
+	s.router = engine
+}
+
+func (s *server) setUpMiddleware(engine *gin.Engine) {
+	if s.EnableCORS {
+		defer zap.S().Sync()
+		zap.S().Info("CORS is enabled")
+		engine.Use(CORSMiddleware())
+	}
 }
 
 func (s *server) setUpHandlers(engine *gin.Engine) {
 	engine.GET("/", s.handleRoot)
 	engine.StaticFS("/ui", http.FS(u.Must(fs.Sub(ui.Embedded, "dist"))))
-	s.router = engine
 }
 
 func (s *server) handleRoot(c *gin.Context) {
