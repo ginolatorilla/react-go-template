@@ -16,7 +16,7 @@ func ReadConfigFromEnv() serverConfig {
 
 	cfg := serverConfig{
 		listenAddress: viper.GetString("listen_address"),
-		enableCORS:    viper.GetBool("enable_cors"),
+		enableCORS:    true,
 	}
 
 	logger().Debugf("Config loaded from environment: %#v", cfg)
