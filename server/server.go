@@ -2,9 +2,12 @@ package server
 
 import (
 	"fmt"
+	"io/fs"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	u "github.com/ginolatorilla/go-template/pkg/utils"
+	"github.com/ginolatorilla/react-go-template/ui"
 	"go.uber.org/zap"
 )
 
@@ -36,9 +39,8 @@ func NewServer(c Options) *server {
 		zap.S().Info("CORS is enabled")
 		engine.Use(CORSMiddleware())
 	}
-	engine.GET("/", server.handleRoot)
 
-	server.router = engine
+	server.setUpHandlers(engine)
 	return server
 }
 
@@ -46,6 +48,12 @@ func (s *server) Serve() error {
 	defer zap.S().Sync()
 	zap.S().Infof("%s version: %s", s.name, s.version)
 	return http.ListenAndServe(s.ListenAddress, s.router)
+}
+
+func (s *server) setUpHandlers(engine *gin.Engine) {
+	engine.GET("/", s.handleRoot)
+	engine.StaticFS("/ui", http.FS(u.Must(fs.Sub(ui.Embedded, "dist"))))
+	s.router = engine
 }
 
 func (s *server) handleRoot(c *gin.Context) {
