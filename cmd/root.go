@@ -13,8 +13,8 @@ import (
 
 var (
 	AppName    = "react-go-template" // Name of the application
-	Version    = ""                  // Version of the application
-	CommitHash = ""                  // Commit hash of the application
+	Version    = "<not-set>"         // Version of the application
+	CommitHash = "<not-set>"         // Commit hash of the application
 )
 
 func Execute() {
@@ -25,6 +25,7 @@ func Execute() {
 func newCommand(appName string) *cobra.Command {
 	var configFile string
 	var verbosity int
+	var opts server.Options
 
 	cobra.OnInitialize(
 		func() { setUpLogger(verbosity) },
@@ -35,23 +36,45 @@ func newCommand(appName string) *cobra.Command {
 		Use:   appName,
 		Short: "Runs the application web server",
 		Run: func(cmd *cobra.Command, args []string) {
-			srv := server.NewServer(server.ReadConfigFromEnv(AppName), Version, AppName)
-			srv.Serve()
+			srv := server.NewServer(
+				opts,
+				AppName,
+				server.VersionInfo{
+					Version:    Version,
+					CommitHash: CommitHash,
+				},
+			)
+			u.Check(srv.Serve())
 		},
 	}
 
-	cmd.PersistentFlags().StringVar(
+	cmd.Flags().StringVar(
 		&configFile,
 		"config",
 		"",
 		fmt.Sprintf("Read configuration from this file (default is $HOME/.%s.yaml)", appName),
 	)
-	cmd.PersistentFlags().CountVarP(
+	cmd.Flags().CountVarP(
 		&verbosity,
 		"verbose",
 		"v",
 		"Verbosity level. Use -v for verbose, -vv for more verbose, etc.",
 	)
+	cmd.Flags().StringVar(
+		&opts.ListenAddress,
+		"listen-address",
+		"127.0.0.1:8080",
+		"Listen on this address",
+	)
+	viper.BindPFlag("listen-address", cmd.Flags().Lookup("listen-address"))
+	cmd.Flags().BoolVar(
+		&opts.EnableCORS,
+		"enable-cors",
+		false,
+		"Allow CORS requests",
+	)
+	viper.BindPFlag("enable-cors", cmd.Flags().Lookup("enable-cors"))
+
 	return cmd
 }
 

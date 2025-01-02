@@ -8,30 +8,31 @@ import (
 	"go.uber.org/zap"
 )
 
-type serverConfig struct {
-	listenAddress string
-	enableCORS    bool
+type Options struct {
+	ListenAddress string
+	EnableCORS    bool
 }
 
 type server struct {
-	serverConfig
+	Options
 
 	name    string
-	version string
+	version VersionInfo
 	router  http.Handler
 }
 
-func NewServer(c serverConfig, version, name string) *server {
+func NewServer(c Options, name string, version VersionInfo) *server {
 	server := new(server)
 	server.version = version
 	server.name = name
-	server.listenAddress = c.listenAddress
-	server.enableCORS = c.enableCORS
+	server.Options = c
+
+	zap.S().Debugf("Server options: %+v", c)
 
 	engine := gin.Default()
 	server.router = engine
 
-	if server.enableCORS {
+	if server.EnableCORS {
 		defer zap.S().Sync()
 		zap.S().Info("CORS is enabled")
 		engine.Use(CORSMiddleware())
@@ -58,10 +59,10 @@ func CORSMiddleware() gin.HandlerFunc {
 	}
 }
 
-func (s *server) Serve() {
+func (s *server) Serve() error {
 	defer zap.S().Sync()
 	zap.S().Infof("%s version: %s", s.name, s.version)
-	http.ListenAndServe(s.listenAddress, s.router)
+	return http.ListenAndServe(s.ListenAddress, s.router)
 }
 
 func (s *server) handleRoot(c *gin.Context) {
