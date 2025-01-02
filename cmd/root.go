@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	u "github.com/ginolatorilla/go-template/pkg/utils"
 	"github.com/ginolatorilla/react-go-template/server"
@@ -19,7 +20,6 @@ func Execute() {
 func newCommand(appName string) *cobra.Command {
 	var configFile string
 	var verbosity int
-	var opts server.Options
 
 	cobra.OnInitialize(
 		func() { setUpLogger(verbosity) },
@@ -30,6 +30,10 @@ func newCommand(appName string) *cobra.Command {
 		Use:   appName,
 		Short: "Runs the application web server",
 		Run: func(cmd *cobra.Command, args []string) {
+			opts := server.Options{
+				ListenAddress: viper.GetString("listen-address"),
+				EnableCORS:    viper.GetBool("enable-cors"),
+			}
 			srv := server.NewServer(opts)
 			u.Check(srv.Serve())
 		},
@@ -47,15 +51,13 @@ func newCommand(appName string) *cobra.Command {
 		"v",
 		"Verbosity level. Use -v for verbose, -vv for more verbose, etc.",
 	)
-	cmd.Flags().StringVar(
-		&opts.ListenAddress,
+	cmd.Flags().String(
 		"listen-address",
 		"127.0.0.1:8080",
 		"Listen on this address",
 	)
 	viper.BindPFlag("listen-address", cmd.Flags().Lookup("listen-address"))
-	cmd.Flags().BoolVar(
-		&opts.EnableCORS,
+	cmd.Flags().Bool(
 		"enable-cors",
 		false,
 		"Allow CORS requests",
@@ -103,7 +105,10 @@ func configure(configFile, appName string) {
 	viper.SetConfigType("yaml")
 	viper.SetConfigName(fmt.Sprintf(".%s", appName))
 
+	viper.SetEnvPrefix(appName)
+	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	viper.AutomaticEnv()
+
 	if err := viper.ReadInConfig(); err == nil {
 		zap.S().Info("Using config file:", viper.ConfigFileUsed())
 	}
