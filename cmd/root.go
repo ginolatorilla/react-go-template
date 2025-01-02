@@ -69,17 +69,14 @@ func newCommand(appName string) *cobra.Command {
 //
 // This function mimics the default logging level of Python's logger (starts at WARNING).
 func setUpLogger(verbosity int) {
-	lvl := zap.WarnLevel
+	lvl := zap.InfoLevel
 	trace := false
 
 	switch verbosity {
 	case 0:
-		lvl = zap.WarnLevel
-		trace = false
-	case 1:
 		lvl = zap.InfoLevel
 		trace = false
-	case 2:
+	case 1:
 		lvl = zap.DebugLevel
 		trace = false
 	default:
