@@ -1,10 +1,11 @@
-package main
+package server
 
 import (
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type serverConfig struct {
@@ -15,13 +16,15 @@ type serverConfig struct {
 type server struct {
 	serverConfig
 
+	name    string
 	version string
 	router  http.Handler
 }
 
-func NewServer(c serverConfig) *server {
+func NewServer(c serverConfig, version, name string) *server {
 	server := new(server)
 	server.version = version
+	server.name = name
 	server.listenAddress = c.listenAddress
 	server.enableCORS = c.enableCORS
 
@@ -29,7 +32,8 @@ func NewServer(c serverConfig) *server {
 	server.router = engine
 
 	if server.enableCORS {
-		logger().Info("CORS is enabled")
+		defer zap.S().Sync()
+		zap.S().Info("CORS is enabled")
 		engine.Use(CORSMiddleware())
 	}
 
@@ -40,7 +44,6 @@ func NewServer(c serverConfig) *server {
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Access-Control-Allow-Credentials", "true")
 		c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
@@ -56,10 +59,11 @@ func CORSMiddleware() gin.HandlerFunc {
 }
 
 func (s *server) Serve() {
-	logger().Infof("%s version: %s", app, s.version)
+	defer zap.S().Sync()
+	zap.S().Infof("%s version: %s", s.name, s.version)
 	http.ListenAndServe(s.listenAddress, s.router)
 }
 
 func (s *server) handleRoot(c *gin.Context) {
-	c.Writer.WriteString(fmt.Sprintf("Hello, World! %s version: %s", app, s.version))
+	c.Writer.WriteString(fmt.Sprintf("Hello, World! %s version: %s", s.name, s.version))
 }

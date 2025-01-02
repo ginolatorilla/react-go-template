@@ -1,12 +1,13 @@
-package main
+package server
 
 import (
 	"strings"
 
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 )
 
-func ReadConfigFromEnv() serverConfig {
+func ReadConfigFromEnv(app string) serverConfig {
 	viper.SetEnvPrefix(app)
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	viper.BindEnv("listen_address")
@@ -19,6 +20,7 @@ func ReadConfigFromEnv() serverConfig {
 		enableCORS:    true,
 	}
 
-	logger().Debugf("Config loaded from environment: %#v", cfg)
+	defer zap.S().Sync()
+	zap.S().Debugf("Config loaded from environment: %#v", cfg)
 	return cfg
 }
