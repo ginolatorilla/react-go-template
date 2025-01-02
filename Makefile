@@ -1,22 +1,68 @@
 $( shell mkdir -p bin )
 
-PROJ      = react-go-template
-ORG_PATH  = github.com/ginolatorilla
-REPO_PATH = $(ORG_PATH)/$(PROJ)
-VERSION  ?= 0.0.1
+APP           = react-go-template
+VERSION       = 0.1.0
+GITHUB_OWNER  = ginolatorilla
+GITHUB_DOMAIN = github.com
 
-export GOBIN=$(PWD)/bin
-LD_FLAGS="-w -X main.version=$(VERSION) -X main.app=$(PROJ)"
+COMMIT_HASH = $(shell git rev-parse HEAD)
+PACKAGE     = $(GITHUB_DOMAIN)/$(GITHUB_OWNER)/$(APP)
 
-build: bin/$(PROJ)
+BUILD_FLAGS = -v -buildvcs
+LD_FLAGS    = -ldflags="-X '$(PACKAGE)/cmd.AppName=$(APP)' -X '$(PACKAGE)/cmd.Version=$(VERSION)' -X '$(PACKAGE)/cmd.CommitHash=$(COMMIT_HASH)'"
+TEST_REGEX  = ".*"
+TEST_PACKAGE = "./..."
 
-.PHONY: release
-release: LD_FLAGS = "-w -X main.version=$(VERSION) -X main.app=$(PROJ) -extldflags \"-static\""
-release: bin/$(PROJ)
+.PHONY: all
+all: test build
 
-bin/$(PROJ): clean
-	@mkdir -p bin/
-	@go install -v -ldflags $(LD_FLAGS) $(REPO_PATH)
+.PHONY: test
+test: tidy
+	@echo "🌡  Running tests..."
+	go test -race $(BUILD_FLAGS) $(LD_FLAGS) -run $(TEST_REGEX) $(TEST_PACKAGE)
 
+.PHONY: test/cover
+test/cover: tidy
+	@echo "🌡️  Running tests..."
+	@go test -coverprofile=/tmp/coverage.out -race $(BUILD_FLAGS) $(LD_FLAGS) -run $(TEST_REGEX) $(TEST_PACKAGE)
+	@go tool cover -html=/tmp/coverage.out
+
+.PHONY: tidy
+tidy:
+	@echo "🧹 Tidying up package dependencies..."
+	go mod tidy
+
+.PHONY: build
+build:
+	@echo "🏗️  Building the application..."
+	go build $(BUILD_FLAGS) $(LD_FLAGS) -o bin/$(APP) $(PACKAGE) 
+
+.PHONY: clean
 clean:
-	@rm -rf bin/
+	go clean
+	rm -rf bin/*
+
+.PHONY: doc
+doc:
+	@go install golang.org/x/pkgsite/cmd/pkgsite@latest
+	@pkgsite -open
+
+.PHONY: install
+install: all
+	@go install $(BUILD_FLAGS) $(LD_FLAGS) $(PACKAGE)
+	@echo "🚀 Installed to $(shell which $(APP))"
+
+.PHONY: help
+help:
+	@echo "Usage: make <target>"
+	@echo ""
+	@echo "Targets:"
+	@echo "  help       - Show this help message"
+	@echo "  all        - Run test, tidy, and build (default)"
+	@echo "  install    - Install the application"
+	@echo "  test       - Run tests"
+	@echo "  test/cover - Run tests with coverage"
+	@echo "  tidy       - Sort out package dependencies"
+	@echo "  build      - Build the application"
+	@echo "  clean      - Clean up the build artifacts"
+	@echo "  doc        - Open the documentation in the browser"
