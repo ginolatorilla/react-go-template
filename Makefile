@@ -12,7 +12,7 @@ TEST_REGEX  = ".*"
 TEST_PACKAGE = "./..."
 
 .PHONY: all
-all: test build
+all: test build/ui build
 
 .PHONY: test
 test: tidy
@@ -32,14 +32,18 @@ tidy:
 
 .PHONY: build
 build:
-	@echo "🏗️  Building the application..."
-	npm -C ui run build
+	@echo "🏗️  Building the server..."
 	go build $(BUILD_FLAGS) $(LD_FLAGS) -o bin/$(APP) $(PACKAGE) 
+
+.PHONY: build/ui
+build/ui:
+	@echo "🏗️  Building the UI..."
+	npm -C ui run build
 
 .PHONY: clean
 clean:
 	go clean
-	rm -rf bin/*
+	rm -rf bin/* ui/dist/*
 
 .PHONY: doc
 doc:
@@ -62,6 +66,7 @@ help:
 	@echo "  test       - Run tests"
 	@echo "  test/cover - Run tests with coverage"
 	@echo "  tidy       - Sort out package dependencies"
-	@echo "  build      - Build the application"
+	@echo "  build      - Build the server"
+	@echo "  build/ui   - Build the UI"
 	@echo "  clean      - Clean up the build artifacts"
 	@echo "  doc        - Open the documentation in the browser"
