@@ -1,5 +1,3 @@
-$( shell mkdir -p bin )
-
 APP           = react-go-template
 VERSION       = 0.1.0
 GITHUB_OWNER  = ginolatorilla
@@ -35,6 +33,7 @@ tidy:
 .PHONY: build
 build:
 	@echo "🏗️  Building the application..."
+	npm -C ui run build
 	go build $(BUILD_FLAGS) $(LD_FLAGS) -o bin/$(APP) $(PACKAGE) 
 
 .PHONY: clean
