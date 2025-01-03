@@ -1,65 +1,103 @@
-package main
+// Package server defines the HTTP web server.
+//
+// # Copyright © 2024 Gino Latorilla
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+package server
 
 import (
-	"fmt"
+	"io/fs"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	u "github.com/ginolatorilla/go-template/pkg/utils"
+	"github.com/ginolatorilla/react-go-template/ui"
+	"go.uber.org/zap"
 )
 
-type serverConfig struct {
-	listenAddress string
-	enableCORS    bool
+// Options defines the server's configuration.
+type Options struct {
+	ListenAddress string
+	EnableCORS    bool
 }
 
+// server is the HTTP web server.
 type server struct {
-	serverConfig
+	Options
 
-	version string
+	name    string
+	version VersionInfo
 	router  http.Handler
 }
 
-func NewServer(c serverConfig) *server {
+// NewServer creates a new web server with the given configuration options.
+func NewServer(c Options) *server {
 	server := new(server)
-	server.version = version
-	server.listenAddress = c.listenAddress
-	server.enableCORS = c.enableCORS
+	server.version.CommitHash = CommitHash
+	server.version.Version = Version
+	server.name = AppName
 
-	engine := gin.Default()
-	server.router = engine
+	defer zap.S().Sync()
+	zap.S().Debugf("Server options: %+v", c)
+	server.Options = c
 
-	if server.enableCORS {
-		logger().Info("CORS is enabled")
-		engine.Use(CORSMiddleware())
-	}
-
-	engine.GET("/", server.handleRoot)
-
+	server.setUpGin()
 	return server
 }
 
-func CORSMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
+// Serve starts the web server, listening to the configured address.
+func (s *server) Serve() error {
+	defer zap.S().Sync()
+	zap.S().Infof("Starting %s version %s and listening at %s", s.name, s.version, s.ListenAddress)
+	return http.ListenAndServe(s.ListenAddress, s.router)
+}
 
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Credentials", "true")
-		c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-		c.Header("Access-Control-Allow-Methods", "OPTIONS, HEAD, POST, GET, PUT, DELETE")
+// setUpGin sets up the Gin engine.
+func (s *server) setUpGin() {
+	engine := gin.Default()
+	s.setUpMiddleware(engine)
+	s.setUpUIHandler(engine)
+	s.setUpAPIHandler(engine)
+	s.router = engine
+}
 
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
-
-		c.Next()
+// setUpMiddleware installs middleware to the provided Gin engine.
+func (s *server) setUpMiddleware(engine *gin.Engine) {
+	if s.EnableCORS {
+		defer zap.S().Sync()
+		zap.S().Info("CORS is enabled")
+		engine.Use(CORSMiddleware())
 	}
 }
 
-func (s *server) Serve() {
-	logger().Infof("%s version: %s", app, s.version)
-	http.ListenAndServe(s.listenAddress, s.router)
-}
+// setUpUIHandler sets up the UI handler, which will listen to the default route ("/").
+func (s *server) setUpUIHandler(engine *gin.Engine) {
+	engine.NoRoute(
+		gin.WrapH(
+			http.FileServer(
+				http.FS(
+					u.Must(fs.Sub(ui.Embedded, "dist")),
+				),
+			),
+		),
+	)
 
-func (s *server) handleRoot(c *gin.Context) {
-	c.Writer.WriteString(fmt.Sprintf("Hello, World! %s version: %s", app, s.version))
+	api := engine.Group("/api/v1")
+	api.GET("/hello", s.handleHello)
 }
