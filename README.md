@@ -14,6 +14,8 @@ The following subpaths in `ui/src/<path>` are mapped to `@<path>` in TypeScript
 - `context`
 - `utils`
 
+The UI *connects* to the server with helper functions defined in `ui/src/utils/server.ts`.
+
 ## Server
 
 - **Gin** is the HTTP web framework with logging and CORS middlewares.
@@ -31,7 +33,7 @@ The server defines these routes:
 VSCode will run the following tasks in the background (see `.vscode/tasks.json`):
 
 - `npm run dev`, which runs an auto-reloading development server for the UI at <http://localhost:5173>.
-- `air`, which runs an auto-reloading development server for the _server_ at <http://localhost:8080>.
+- `air`, which runs an auto-reloading development server for the *server* at <http://localhost:8080>.
 
 The UI connects to the server because it loads the server's address from `ui/.env.development`.
 Air runs the server with CORS enabled, which allows the requests from the UI (see `.air.toml`).

@@ -2,6 +2,7 @@ package server
 
 import "github.com/gin-gonic/gin"
 
+// CORSMiddleware enables CORS requests for all origins.
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
