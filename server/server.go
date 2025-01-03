@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"io/fs"
 	"net/http"
 
@@ -47,7 +46,8 @@ func (s *server) Serve() error {
 func (s *server) setUpGin() {
 	engine := gin.Default()
 	s.setUpMiddleware(engine)
-	s.setUpHandlers(engine)
+	s.setUpUIHandler(engine)
+	s.setUpAPIHandler(engine)
 	s.router = engine
 }
 
@@ -59,11 +59,17 @@ func (s *server) setUpMiddleware(engine *gin.Engine) {
 	}
 }
 
-func (s *server) setUpHandlers(engine *gin.Engine) {
-	engine.GET("/", s.handleRoot)
-	engine.StaticFS("/ui", http.FS(u.Must(fs.Sub(ui.Embedded, "dist"))))
-}
+func (s *server) setUpUIHandler(engine *gin.Engine) {
+	engine.NoRoute(
+		gin.WrapH(
+			http.FileServer(
+				http.FS(
+					u.Must(fs.Sub(ui.Embedded, "dist")),
+				),
+			),
+		),
+	)
 
-func (s *server) handleRoot(c *gin.Context) {
-	c.Writer.WriteString(fmt.Sprintf("Hello, World! %s version: %s", s.name, s.version))
+	api := engine.Group("/api/v1")
+	api.GET("/hello", s.handleRoot)
 }
