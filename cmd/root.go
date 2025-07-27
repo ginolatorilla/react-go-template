@@ -26,7 +26,7 @@ import (
 	"os"
 	"strings"
 
-	u "github.com/ginolatorilla/go-template/pkg/utils"
+	"github.com/ginolatorilla/core"
 	"github.com/ginolatorilla/react-go-template/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -36,7 +36,7 @@ import (
 // Execute runs the application.
 func Execute() {
 	cmd := newCommand(server.AppName)
-	u.Check(cmd.Execute())
+	core.Check(cmd.Execute())
 }
 
 // newCommand creates a new Cobra command.
@@ -58,7 +58,7 @@ func newCommand(appName string) *cobra.Command {
 				EnableCORS:    viper.GetBool("enable-cors"),
 			}
 			srv := server.NewServer(opts)
-			u.Check(srv.Serve())
+			core.Check(srv.Serve())
 		},
 	}
 
@@ -123,7 +123,7 @@ func configure(configFile, appName string) {
 	}
 
 	zap.S().Debug("No config file specified, searching for default config file")
-	home := u.Must(os.UserHomeDir())
+	home := core.Must(os.UserHomeDir())
 	viper.AddConfigPath(home)
 	viper.SetConfigType("yaml")
 	viper.SetConfigName(fmt.Sprintf(".%s", appName))

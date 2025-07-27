@@ -26,7 +26,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	u "github.com/ginolatorilla/go-template/pkg/utils"
+	"github.com/ginolatorilla/core"
 	"github.com/ginolatorilla/react-go-template/ui"
 	"go.uber.org/zap"
 )
@@ -92,12 +92,10 @@ func (s *server) setUpUIHandler(engine *gin.Engine) {
 		gin.WrapH(
 			http.FileServer(
 				http.FS(
-					u.Must(fs.Sub(ui.Embedded, "dist")),
-				),
+					core.Must(fs.Sub(ui.Embedded, "dist"))),
 			),
 		),
 	)
-
 	api := engine.Group("/api/v1")
 	api.GET("/hello", s.handleHello)
 }
